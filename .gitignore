@@ -1,0 +1,22 @@
+# Bỏ qua thư mục build và dist (NetBeans biên dịch ra)
+build/
+dist/
+
+# Bỏ qua file biên dịch Java
+*.class
+
+# Bỏ qua NetBeans specific files
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Bỏ qua file log, cache, backup
+*.log
+*.bak
+*.tmp
+
+# Bỏ qua thư mục .gitignore của hệ điều hành
+.DS_Store
+Thumbs.db

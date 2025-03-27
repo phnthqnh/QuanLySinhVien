@@ -3,16 +3,115 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package example.btljava2;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+
+
 
 /**
  *
  * @author qphan
  */
 public class MainForm extends javax.swing.JFrame {
+    
 
-    /**
-     * Creates new form MainForm
-     */
+    //luu thong tin vao csdl
+    private void saveStudentToDatabase(String masv, String hoten, String gioitinh, String ngaysinh, String lop) {
+    String url = "jdbc:mysql://localhost:3306/btl_java";
+    String user = "root";
+    String password = ""; 
+
+    String sql = "INSERT INTO sinhvien(masv, hoten, gioitinh, ngaysinh, lop) VALUES (?, ?, ?, ?, ?)";
+
+    try (Connection conn = DriverManager.getConnection(url, user, password);
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, masv);
+        pst.setString(2, hoten);
+        pst.setString(3, gioitinh);
+        pst.setString(4, ngaysinh);
+        pst.setString(5, lop);
+
+        int rowsInserted = pst.executeUpdate();
+        if (rowsInserted > 0) {
+            JOptionPane.showMessageDialog(this, "Lưu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Lỗi khi lưu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    //update thong tin sau khi sua vao csdl
+    private void updateStudentInDatabase(String masv, String hoten, String gioitinh, String ngaysinh, String lop) {
+        String url = "jdbc:mysql://localhost:3306/btl_java";
+        String user = "root";
+        String password = "";
+
+        String sql = "UPDATE sinhvien SET hoten = ?, gioitinh = ?, ngaysinh = ?, lop = ? WHERE masv = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setString(1, hoten);
+            pst.setString(2, gioitinh);
+            pst.setString(3, ngaysinh);
+            pst.setString(4, lop);
+            pst.setString(5, masv);  // Điều kiện WHERE để tìm đúng sinh viên cần sửa
+
+            int rowsUpdated = pst.executeUpdate();
+            if (rowsUpdated > 0) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy sinh viên để cập nhật!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    //Xoa thong tin sinh vien khoi csdl
+    private boolean deleteStudentFromDatabase(String masv) {
+        String url = "jdbc:mysql://localhost:3306/btl_java";
+        String user = "root";
+        String password = "";
+
+        String sql = "DELETE FROM sinhvien WHERE masv = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+        pst.setString(1, masv);
+        int rowsDeleted = pst.executeUpdate();
+        return rowsDeleted > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            return false;
+        }
+    }
+    //Timf kiếm thông tin sinh viên
+    private void searchStudentInTable(String keyword) {
+        DefaultTableModel model = (DefaultTableModel) tableStudent.getModel();
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        tableStudent.setRowSorter(sorter);
+
+        if (keyword.trim().isEmpty()) {
+            sorter.setRowFilter(null); // Hiển thị lại toàn bộ dữ liệu nếu ô tìm kiếm trống
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword, 1, 2)); 
+            
+        }
+}
+    
+    
+    
+    private void clearForm(){
+        s_maSV.setText("");
+        s_hoten.setText("");
+        s_ngaysinh.setText("");
+        s_lop.setText("");
+    }
     public MainForm() {
         initComponents();
     }
@@ -26,12 +125,33 @@ public class MainForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGender = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        s_hoten = new javax.swing.JTextField();
+        s_ngaysinh = new javax.swing.JTextField();
+        s_lop = new javax.swing.JTextField();
+        s_maSV = new javax.swing.JTextField();
+        rbNam = new javax.swing.JRadioButton();
+        rbNu = new javax.swing.JRadioButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        s_btnAdd = new javax.swing.JButton();
+        s_btnEdit = new javax.swing.JButton();
+        s_btnDel = new javax.swing.JButton();
+        s_btnCancel = new javax.swing.JButton();
+        s_btnSave = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableStudent = new javax.swing.JTable();
+        s_Search = new javax.swing.JTextField();
+        s_btnSearch = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -42,37 +162,24 @@ public class MainForm extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 707, Short.MAX_VALUE)
+            .addGap(0, 737, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
+            .addGap(0, 785, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Quản lý môn học", jPanel1);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 707, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("Quản lý sinh viên", jPanel2);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 707, Short.MAX_VALUE)
+            .addGap(0, 737, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
+            .addGap(0, 785, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Quản lý điểm", jPanel3);
@@ -81,11 +188,11 @@ public class MainForm extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 707, Short.MAX_VALUE)
+            .addGap(0, 737, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
+            .addGap(0, 785, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Đăng ký học", jPanel4);
@@ -94,14 +201,195 @@ public class MainForm extends javax.swing.JFrame {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 707, Short.MAX_VALUE)
+            .addGap(0, 737, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
+            .addGap(0, 785, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Thống kê", jPanel5);
+
+        s_hoten.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_hotenActionPerformed(evt);
+            }
+        });
+
+        s_ngaysinh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_ngaysinhActionPerformed(evt);
+            }
+        });
+
+        s_lop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_lopActionPerformed(evt);
+            }
+        });
+
+        s_maSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_maSVActionPerformed(evt);
+            }
+        });
+
+        buttonGender.add(rbNam);
+        rbNam.setText("Nam");
+
+        buttonGender.add(rbNu);
+        rbNu.setText("Nữ");
+
+        jLabel1.setText("Mã sinh viên");
+
+        jLabel2.setText("Họ và tên");
+
+        jLabel3.setText("Giới tính");
+
+        jLabel4.setText("Ngày sinh");
+
+        jLabel5.setText("Lớp chuyên ngành");
+
+        s_btnAdd.setText("Thêm");
+        s_btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnAddActionPerformed(evt);
+            }
+        });
+
+        s_btnEdit.setText("Sửa");
+        s_btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnEditActionPerformed(evt);
+            }
+        });
+
+        s_btnDel.setText("Xóa");
+        s_btnDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnDelActionPerformed(evt);
+            }
+        });
+
+        s_btnCancel.setText("Hủy bỏ");
+        s_btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnCancelActionPerformed(evt);
+            }
+        });
+
+        s_btnSave.setText("Lưu");
+        s_btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnSaveActionPerformed(evt);
+            }
+        });
+
+        tableStudent.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "STT", "Mã sinh viên", "Họ và tên", "Giới tính", "Ngày sinh", "Lớp chuyên ngành"
+            }
+        ));
+        jScrollPane1.setViewportView(tableStudent);
+
+        s_btnSearch.setText("Tìm kiếm");
+        s_btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                s_btnSearchActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 642, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel4))
+                            .addComponent(jLabel5))
+                        .addGap(15, 15, 15)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(s_Search, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(s_btnSearch))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(rbNam, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(rbNu, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(s_hoten, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(s_maSV, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(s_ngaysinh, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(s_lop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(117, 117, 117)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(s_btnEdit)
+                                    .addComponent(s_btnAdd)
+                                    .addComponent(s_btnDel)
+                                    .addComponent(s_btnCancel)
+                                    .addComponent(s_btnSave))))))
+                .addContainerGap(77, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(s_Search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(s_btnSearch))
+                .addGap(58, 58, 58)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(s_maSV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(s_btnAdd))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(s_hoten, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(s_btnEdit))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(s_btnDel)
+                        .addGap(17, 17, 17)
+                        .addComponent(s_btnCancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(s_btnSave))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(rbNam)
+                            .addComponent(rbNu)
+                            .addComponent(jLabel3))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(s_ngaysinh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(s_lop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))))
+                .addGap(42, 42, 42)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(183, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Quản lý sinh viên", jPanel2);
 
         jMenu1.setText("Hướng dẫn");
         jMenuBar1.add(jMenu1);
@@ -129,6 +417,145 @@ public class MainForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void s_hotenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_hotenActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_s_hotenActionPerformed
+
+    private void s_ngaysinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_ngaysinhActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_s_ngaysinhActionPerformed
+
+    private void s_lopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_lopActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_s_lopActionPerformed
+
+    private void s_maSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_maSVActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_s_maSVActionPerformed
+
+    private void s_btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnAddActionPerformed
+        String masv = s_maSV.getText().trim();
+        String hoten = s_hoten.getText().trim();
+        String gioitinh = rbNam.isSelected()?"Nam" : "Nữ";
+        String ngaysinh = s_ngaysinh.getText().trim();
+        String lop = s_lop.getText().trim();
+        
+        
+
+        // Kiểm tra thông tin nhập có bị trống không
+        if (masv.isEmpty() || hoten.isEmpty() || ngaysinh.isEmpty() || lop.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) tableStudent.getModel();
+        // Thêm dữ liệu vào bảng 
+        model.addRow(new Object[]{model.getRowCount() + 1, masv, hoten, gioitinh, ngaysinh, lop});
+        saveStudentToDatabase(masv, hoten, gioitinh, ngaysinh, lop);
+
+        // Xóa nội dung trên form sau khi thêm
+        clearForm();
+    }//GEN-LAST:event_s_btnAddActionPerformed
+
+    private void s_btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnEditActionPerformed
+       int selectedRow = tableStudent.getSelectedRow();
+        if (selectedRow != -1) { 
+            s_maSV.setText(tableStudent.getValueAt(selectedRow, 1).toString());
+            s_hoten.setText(tableStudent.getValueAt(selectedRow, 2).toString());
+            String gioiTinh = tableStudent.getValueAt(selectedRow, 3).toString();
+            if (gioiTinh.equals("Nam")) {
+                rbNam.setSelected(true);
+            } else {
+                rbNu.setSelected(true);
+            }
+            s_ngaysinh.setText(tableStudent.getModel().getValueAt(selectedRow, 4).toString());
+            s_lop.setText(tableStudent.getModel().getValueAt(selectedRow, 5).toString());
+        }
+        s_btnAdd.setEnabled(false);
+        s_btnDel.setEnabled(false);
+        s_btnEdit.setEnabled(false);
+        s_btnCancel.setVisible(true);
+        s_btnSave.setVisible(true);
+    }//GEN-LAST:event_s_btnEditActionPerformed
+
+    private void s_btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnSaveActionPerformed
+         int selectedRow = tableStudent.getSelectedRow(); // Lấy dòng đang chọn
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sinh viên để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DefaultTableModel model = (DefaultTableModel) tableStudent.getModel();
+
+            // Lấy dữ liệu từ các JTextField
+            String masv = s_maSV.getText().trim();
+            String hoten = s_hoten.getText().trim();
+            String gioitinh = rbNam.isSelected() ? "Nam" : "Nữ";
+            String ngaysinh = s_ngaysinh.getText().trim();
+            String lop = s_lop.getText().trim();
+
+            // Kiểm tra dữ liệu có trống không
+            if (masv.isEmpty() || hoten.isEmpty() || ngaysinh.isEmpty() || lop.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Cập nhật dữ liệu vào dòng đã chọn
+            model.setValueAt(masv, selectedRow, 1);
+            model.setValueAt(hoten, selectedRow, 2);
+            model.setValueAt(gioitinh, selectedRow, 3);
+            model.setValueAt(ngaysinh, selectedRow, 4);
+            model.setValueAt(lop, selectedRow, 5);
+
+            JOptionPane.showMessageDialog(this, "Thông tin sinh viên đã được cập nhật!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            updateStudentInDatabase(masv, hoten, gioitinh, ngaysinh, lop);
+
+            s_btnAdd.setEnabled(true);
+            s_btnDel.setEnabled(true);
+            s_btnEdit.setEnabled(true);
+            s_btnCancel.setVisible(true);
+            s_btnSave.setVisible(true);
+            clearForm();
+    }//GEN-LAST:event_s_btnSaveActionPerformed
+
+    private void s_btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnCancelActionPerformed
+         s_btnAdd.setEnabled(true);
+        s_btnDel.setEnabled(true);
+        s_btnEdit.setEnabled(true);
+        s_btnCancel.setVisible(true);
+        s_btnSave.setVisible(true);
+        clearForm();
+    }//GEN-LAST:event_s_btnCancelActionPerformed
+
+    private void s_btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnDelActionPerformed
+        int selectedRow = tableStudent.getSelectedRow(); // Lấy dòng đang chọn
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một sinh viên để xóa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa sinh viên này?", 
+                                                    "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+        String masv = tableStudent.getValueAt(selectedRow, 1).toString();
+        if (confirm == JOptionPane.YES_OPTION) {
+            if(deleteStudentFromDatabase(masv)){
+                DefaultTableModel model = (DefaultTableModel) tableStudent.getModel();
+                model.removeRow(selectedRow); // Xóa dòng trong JTable
+                JOptionPane.showMessageDialog(this, "Đã xóa sinh viên thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+               JOptionPane.showMessageDialog(this, "Không thể xóa thông tin!", "Lỗi", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+    // Xóa dữ liệu trong các JTextField sau khi xóa
+            clearForm();
+        }
+    }//GEN-LAST:event_s_btnDelActionPerformed
+
+    private void s_btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnSearchActionPerformed
+        String keyword = s_Search.getText().trim();
+        searchStudentInTable(keyword);
+    }//GEN-LAST:event_s_btnSearchActionPerformed
 
     /**
      * @param args the command line arguments
@@ -166,6 +593,12 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGender;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -174,6 +607,23 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JRadioButton rbNam;
+    private javax.swing.JRadioButton rbNu;
+    private javax.swing.JTextField s_Search;
+    private javax.swing.JButton s_btnAdd;
+    private javax.swing.JButton s_btnCancel;
+    private javax.swing.JButton s_btnDel;
+    private javax.swing.JButton s_btnEdit;
+    private javax.swing.JButton s_btnSave;
+    private javax.swing.JButton s_btnSearch;
+    private javax.swing.JTextField s_hoten;
+    private javax.swing.JTextField s_lop;
+    private javax.swing.JTextField s_maSV;
+    private javax.swing.JTextField s_ngaysinh;
+    private javax.swing.JTable tableStudent;
     // End of variables declaration//GEN-END:variables
+
+   
 }

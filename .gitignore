@@ -20,3 +20,6 @@ nb-configuration.xml
 # Bỏ qua thư mục .gitignore của hệ điều hành
 .DS_Store
 Thumbs.db
+
+# Bỏ qua file xlsx
+*.xlsx

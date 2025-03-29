@@ -17,6 +17,7 @@ import java.sql.*;
 
 import example.btljava2.HocPhan;
 import example.btljava2.SinhVien;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import org.jfree.chart.ChartFactory;
@@ -499,6 +500,15 @@ public class MainForm extends javax.swing.JFrame {
             n++;
         }
     }
+    // căn lề nọi dung bảng
+    private void setTableCellAlignment(JTable table) {
+    DefaultTableCellRenderer centerRenderer = new CenterRenderer();
+
+    for (int i = 0; i < table.getColumnCount(); i++) {
+        table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+    }
+}
+
     
     //xóa các giá trị của trang quản lý môn học
     private void m_clear() {
@@ -631,8 +641,6 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-       
-
         m_tblMonhoc.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -660,6 +668,7 @@ public class MainForm extends javax.swing.JFrame {
         m_tblMonhoc.getTableHeader().setBackground(new Color(0,0,102)); 
         m_tblMonhoc.getTableHeader().setForeground(Color.WHITE); 
         m_tblMonhoc.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        setTableCellAlignment(m_tblMonhoc);
         JScrollPane.setViewportView(m_tblMonhoc);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -758,6 +767,7 @@ public class MainForm extends javax.swing.JFrame {
         d_tblDiemthi.getTableHeader().setBackground(new Color(0,0,102)); 
         d_tblDiemthi.getTableHeader().setForeground(Color.WHITE);
         d_tblDiemthi.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        setTableCellAlignment(d_tblDiemthi);
         jScrollPane1.setViewportView(d_tblDiemthi);
 
         jLabel5.setText("Nhập điểm");
@@ -967,6 +977,7 @@ public class MainForm extends javax.swing.JFrame {
         dk_tableChuaDK.getTableHeader().setBackground(new Color(0,0,102)); 
         dk_tableChuaDK.getTableHeader().setForeground(Color.WHITE);
         dk_tableChuaDK.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        setTableCellAlignment(dk_tableChuaDK);
         JScrollPane1.setViewportView(dk_tableChuaDK);
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -1000,6 +1011,7 @@ public class MainForm extends javax.swing.JFrame {
         dk_tblDaDK.getTableHeader().setBackground(new Color(0,0,102)); 
         dk_tblDaDK.getTableHeader().setForeground(Color.WHITE);
         dk_tblDaDK.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        setTableCellAlignment(dk_tblDaDK);
         JScrollPane2.setViewportView(dk_tblDaDK);
 
         dk_btnDK.setBackground(new java.awt.Color(0, 0, 102));
@@ -1178,6 +1190,7 @@ public class MainForm extends javax.swing.JFrame {
         s_tblSV.getTableHeader().setBackground(new Color( 0, 0,102)); 
         s_tblSV.getTableHeader().setForeground(Color.WHITE); 
         s_tblSV.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        setTableCellAlignment(s_tblSV);
         jScrollPane2.setViewportView(s_tblSV);
         if (s_tblSV.getColumnModel().getColumnCount() > 0) {
             s_tblSV.getColumnModel().getColumn(0).setPreferredWidth(20);

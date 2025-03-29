@@ -217,9 +217,6 @@
               </Events>
             </Component>
             <Container class="javax.swing.JScrollPane" name="JScrollPane">
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="table.getTableHeader().setBackground(new Color(0, 0, 102));  &#xd;&#xa;table.getTableHeader().setForeground(Color.WHITE);"/>
-              </AuxValues>
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
@@ -265,7 +262,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="m_tblMonhoc.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;m_tblMonhoc.getTableHeader().setForeground(Color.WHITE); &#xd;&#xa;m_tblMonhoc.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="m_tblMonhoc.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;m_tblMonhoc.getTableHeader().setForeground(Color.WHITE); &#xd;&#xa;m_tblMonhoc.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;setTableCellAlignment(m_tblMonhoc);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -463,7 +460,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="d_tblDiemthi.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;d_tblDiemthi.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;d_tblDiemthi.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="d_tblDiemthi.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;d_tblDiemthi.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;d_tblDiemthi.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;setTableCellAlignment(d_tblDiemthi);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -845,7 +842,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="dk_tableChuaDK.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;dk_tableChuaDK.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;dk_tableChuaDK.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="dk_tableChuaDK.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;dk_tableChuaDK.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;dk_tableChuaDK.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;setTableCellAlignment(dk_tableChuaDK);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -907,7 +904,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="dk_tblDaDK.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;dk_tblDaDK.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;dk_tblDaDK.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="dk_tblDaDK.getTableHeader().setBackground(new Color(0,0,102)); &#xd;&#xa;dk_tblDaDK.getTableHeader().setForeground(Color.WHITE);&#xd;&#xa;dk_tblDaDK.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;setTableCellAlignment(dk_tblDaDK);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -1234,7 +1231,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" s_tblSV.getTableHeader().setBackground(new Color( 0, 0,102)); &#xd;&#xa;s_tblSV.getTableHeader().setForeground(Color.WHITE); &#xd;&#xa;s_tblSV.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" s_tblSV.getTableHeader().setBackground(new Color( 0, 0,102)); &#xd;&#xa;s_tblSV.getTableHeader().setForeground(Color.WHITE); &#xd;&#xa;s_tblSV.getTableHeader().setFont(new Font(&quot;Segoe UI&quot;, Font.BOLD, 12));&#xd;&#xa;setTableCellAlignment(s_tblSV);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>

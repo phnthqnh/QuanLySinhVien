@@ -3,7 +3,18 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package example.btljava2;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+import java.awt.event.MouseAdapter;
+import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.*;
 
+import java.util.*;
+
+import java.sql.*;
 /**
  *
  * @author vuchi
@@ -15,6 +26,11 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        if (hienthiPassword.isSelected()) {
+            txtPassword.setEchoChar((char) 0);
+        } else {
+            txtPassword.setEchoChar('\u2022');
+        }
     }
 
     /**
@@ -26,10 +42,10 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jButton1 = new javax.swing.JButton();
-        jRadioButton1 = new javax.swing.JRadioButton();
+        txtUsername = new javax.swing.JTextField();
+        txtPassword = new javax.swing.JPasswordField();
+        btnLogin = new javax.swing.JButton();
+        hienthiPassword = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -39,21 +55,27 @@ public class Login extends javax.swing.JFrame {
         setTitle("Đăng nhập");
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 300, -1));
-        getContentPane().add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, 300, 20));
+        getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 300, -1));
+        getContentPane().add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, 300, 20));
 
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jButton1.setText("Đăng nhập");
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 400, 300, -1));
-
-        jRadioButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jRadioButton1.setText("Hiển thị mật khẩu");
-        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnLogin.setText("Đăng nhập");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton1ActionPerformed(evt);
+                btnLoginActionPerformed(evt);
             }
         });
-        getContentPane().add(jRadioButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 350, -1, -1));
+        getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 400, 300, -1));
+
+        hienthiPassword.setBackground(new java.awt.Color(0, 0, 102));
+        hienthiPassword.setForeground(new java.awt.Color(255, 255, 255));
+        hienthiPassword.setText("Hiển thị mật khẩu");
+        hienthiPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hienthiPasswordActionPerformed(evt);
+            }
+        });
+        getContentPane().add(hienthiPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 350, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -70,15 +92,45 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setText("Đăng nhập");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 160, -1, -1));
 
-        AnhNen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/logo.jpg"))); // NOI18N
+        AnhNen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/logo.jpg"))); // NOI18N
         getContentPane().add(AnhNen, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 710, 530));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+    private void hienthiPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hienthiPasswordActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+        if (hienthiPassword.isSelected()) {
+            txtPassword.setEchoChar((char) 0);
+        } else {
+            txtPassword.setEchoChar('\u2022');
+        }
+    }//GEN-LAST:event_hienthiPasswordActionPerformed
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        // TODO add your handling code here:
+        String password = new String(txtPassword.getPassword());
+        String username = txtUsername.getText();
+        if (txtUsername.getText().isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa nhập thông tin", "Cảnh báo", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        UserDatabase userdb = new UserDatabase();
+        if (userdb.checkLogin(username, password)){
+            for (User user : userdb.ls) {
+                if(user.getUsername().equals(username)){
+                    MainForm main = new MainForm(user.getUsername(), user.getRole());
+                    main.setVisible(true);
+                    dispose();
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "username hoặc password sai", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtUsername.setText("");
+            txtPassword.setText("");
+        }
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
      * @param args the command line arguments
@@ -117,12 +169,12 @@ public class Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AnhNen;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnLogin;
+    private javax.swing.JRadioButton hienthiPassword;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

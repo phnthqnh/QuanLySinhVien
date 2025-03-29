@@ -13,7 +13,7 @@ import java.util.Properties;
  */
 public class DatabaseConnection {
     public static Connection getConnection() {
-        String URL = "jdbc:mysql://localhost:3306/btl_java";
+        String URL = "jdbc:mysql://localhost:3306/btl_java2";
         String USER = "root";
         String PASSWORD = "";
         try {

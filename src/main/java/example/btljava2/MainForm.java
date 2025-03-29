@@ -38,43 +38,50 @@ import org.jfree.data.general.DefaultPieDataset;
  * @author qphan
  */
 public class MainForm extends javax.swing.JFrame {
+    
+    //tài khoản đăng nhập
+    private static String username;
+    private static boolean role;
+
     //button giới tính
     private ButtonGroup btnGender;
-    
+
     //tạo các tablemodel
     private DefaultTableModel m_model;
     private DefaultTableModel s_model;
     private DefaultTableModel d_model;
     private DefaultTableModel dk_model1;
     private DefaultTableModel dk_model2;
-    
+
     //biến lưu số dòng được chọn trong bảng
     private int selectRowMH = -1; //bien luu dong duoc chon
     private int selectRowSV = -1; //bien luu dong duoc chon
     private int selectRowDiem = -1;
-    
+
     //biến lưu mã sinh viên, mã môn, sinh viên được chọn
     private String selectMasv = null;
     private String selectMamon = null;
     private SinhVien selectSv = null;
-    
+
     private ArrayList<SinhVien> SV = new ArrayList<SinhVien>();
     private ArrayList<HocPhan> HP = new ArrayList<HocPhan>();
     private ArrayList<BangDiem> BD = new ArrayList<BangDiem>();
-    
+
     private JPanel pannelChart;
-   
 
     /**
      * Creates new form MainForm
      */
-    public MainForm() {
+    public MainForm(String username, boolean role) {
+        
+        this.username = username;
+        this.role = role;
         initComponents();
         //pannel thống kê
         pannelChart = new JPanel();
         pannelChart.setLayout(new BorderLayout());
         tk_panelBieuDo.add(pannelChart, BorderLayout.CENTER);
-        
+
         btnGender = new ButtonGroup();
         btnGender.add(jRadioButton1);
         btnGender.add(jRadioButton2);
@@ -89,7 +96,7 @@ public class MainForm extends javax.swing.JFrame {
 //            loadDiemOfSV(i);
 //            i.inHP(i);
         }
-        
+
         //xử lý trang thống kê
         //jComboBox sinh viên
         tk_jCBMasv.addActionListener(new ActionListener() {
@@ -105,13 +112,13 @@ public class MainForm extends javax.swing.JFrame {
                     tk_txtLop.setText(selectSv.getLop());
                     tk_txtNgaysinh.setText(selectSv.getNgaysinh());
                     loadDiemOfSV(selectSv);
-                    
+
                     //cập nhật biểu đồ
                     updateChart();
                 }
             }
         });
-        
+
         //xử lý trang quản lý điểm
         d_model = (DefaultTableModel) d_tblDiemthi.getModel();
         //jComboBox sinh viên trong trang quản lý điểm
@@ -146,8 +153,7 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
         });
-        
-        
+
         //xử lý trang đăng ký học
         //bảng môn chưa đăng ký
         dk_model1 = (DefaultTableModel) dk_tableChuaDK.getModel();
@@ -165,7 +171,7 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         //bảng môn đã đăng ký
         dk_model2 = (DefaultTableModel) dk_tblDaDK.getModel();
         //jComboBox sinhvien trong trang đăng ký học
@@ -198,8 +204,7 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
         });
-        
-        
+
         //xử lý trang quản lý sinh viên
         s_model = (DefaultTableModel) s_tblSV.getModel();
         FillTblSinhVien(s_model);
@@ -222,7 +227,7 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         // xử lý trang quản lý môn học
         m_model = (DefaultTableModel) m_tblMonhoc.getModel();
         FillTblMonHoc(m_model);
@@ -238,11 +243,67 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
         });
+
+        checkRole(role);
+        enterSearch();
+        sortTable(m_model, m_tblMonhoc);
+        sortTable(d_model, d_tblDiemthi);
+        sortTable(dk_model1, dk_tableChuaDK);
+        sortTable(dk_model2, dk_tblDaDK);
         
-//        DefaultTableModel dk_model1 = (DefaultTableModel) dk_tableChuaDK.getModel();
-//        FillTblMonHoc(dk_model1);   
     }
     
+    // sort table
+    public void sortTable(DefaultTableModel model, JTable table) {
+        model = (DefaultTableModel) table.getModel();
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+    }
+    
+    public void enterSearch() {
+        s_txtTim.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //gọi hàm search
+                searchStudentInTabel(s_txtTim.getText().trim());
+            }
+        });
+    }
+    
+    //phân quyền
+    public void checkRole(boolean role) {
+        if (!role){
+           m_txtMamon.setEnabled(false);
+           m_txtTenmon.setEnabled(false);
+           m_txtSotinchi.setEnabled(false);
+           m_btnThem.setEnabled(false);
+           m_btnSua.setEnabled(false);
+           m_btnXoa.setEnabled(false);
+           m_tblMonhoc.setEnabled(false);
+           
+           d_tblDiemthi.setEnabled(false);
+           d_txtNhapdiem.setEnabled(false);
+           d_btnNhapdiem.setEnabled(false);
+           d_btnXoadiem.setEnabled(false);
+           
+           dk_btnDK.setEnabled(false);
+           dk_btnHuy.setEnabled(false);
+           dk_tableChuaDK.setEnabled(false);
+           dk_tblDaDK.setEnabled(false);
+           
+           s_txtMasv.setEnabled(false);
+           s_txtHoten.setEnabled(false);
+           s_txtNgaysinh.setEnabled(false);
+           s_txtLop.setEnabled(false);
+           jRadioButton1.setEnabled(false);
+           jRadioButton2.setEnabled(false);
+           s_tblSV.setEnabled(false);
+           s_btnThem.setEnabled(false);
+           s_btnSua.setEnabled(false);
+           s_btnXoa.setEnabled(false);
+        }
+    }
+
     //export điểm
     public void exportToExcel(ArrayList<BangDiem> bangDiemList, String filePath) {
         Workbook workbook = new XSSFWorkbook();
@@ -291,16 +352,17 @@ public class MainForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    
-    
+
     //vẽ biểu đồ
     private void updateChart() {
-        if (selectSv == null) return;
-        
+        if (selectSv == null) {
+            return;
+        }
+
         //lấy tỉ lệ 
         double[] tyle = selectSv.tinhTyLeMon();
 
-            // Tạo dataset
+        // Tạo dataset
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("Môn đạt", tyle[0]);
         dataset.setValue("Môn trượt", tyle[1]);
@@ -323,15 +385,15 @@ public class MainForm extends javax.swing.JFrame {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(530, 400));
         // Hiển thị biểu đồ
-         // Xóa các thành phần cũ trước khi thêm biểu đồ mới
+        // Xóa các thành phần cũ trước khi thêm biểu đồ mới
         tk_panelBieuDo.removeAll();
         tk_panelBieuDo.setLayout(new BorderLayout());
         tk_panelBieuDo.add(chartPanel, BorderLayout.CENTER);
 //        tk_panelBieuDo.validate();
         tk_panelBieuDo.revalidate(); // Cập nhật giao diện
         tk_panelBieuDo.repaint();    // Vẽ lại
-        }
-    
+    }
+
     //tìm sinh viên theo mã sinh viên
     private SinhVien timSV(String masv) {
         for (SinhVien i : SV) {
@@ -341,7 +403,7 @@ public class MainForm extends javax.swing.JFrame {
         }
         return null;
     }
-    
+
     //tìm học phần theo mã môn
     private HocPhan timHP(String mamon) {
         for (HocPhan i : HP) {
@@ -351,25 +413,25 @@ public class MainForm extends javax.swing.JFrame {
         }
         return null;
     }
-    
+
     //tìm bảng điểm theo mã sinh viên
     private BangDiem timBD(String masv) {
         for (BangDiem i : BD) {
-            if (i.getMasv().equals(masv)){
+            if (i.getMasv().equals(masv)) {
                 return i;
             }
         }
         return null;
     }
-    
+
     //xóa các giá trị trong trang thống kê
     private void tk_clear() {
         tk_txtHoten.setText("");
         tk_txtLop.setText("");
         tk_txtNgaysinh.setText("");
-        
+
     }
-    
+
     //lấy điểm của sinh viên từ database
     private void loadDiemOfSV(SinhVien sv) {
         BD.clear();
@@ -379,8 +441,7 @@ public class MainForm extends javax.swing.JFrame {
             PreparedStatement pstm = conn.prepareStatement("select * from diemthi where masv = ? order by mamon");
             pstm.setString(1, sv.getMasv());
             ResultSet rs = pstm.executeQuery();
-            
-            
+
             while (rs.next()) {
                 String mamon = rs.getString("mamon");
                 Float diem = rs.getFloat("diem");
@@ -395,26 +456,25 @@ public class MainForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    
+
     // điền danh sách điểm thi của sinh viên vào bảng
-    private void FillTblDiem (SinhVien sv) {
+    private void FillTblDiem(SinhVien sv) {
         d_model.setRowCount(0);
-        int n=1;
+        int n = 1;
         for (HocPhan i : sv.getHocPhans()) {
             d_model.addRow(new Object[]{n, sv.getMasv(), i.getMaMon(), sv.getDiem(i.getMaMon()), sv.getStatus(i.getMaMon())});
             n++;
         }
     }
-    
+
     //xóa các giá trị trong trang quản lý điểm
     private void d_clear() {
         d_txtMamon.setText("");
         d_txtTenmon.setText("");
         d_txtNhapdiem.setText("");
-        
+
     }
-    
-    
+
     //lấy các học phần đã đăng ký của sinh viên từ database
     private void loadMHofSV(SinhVien sv) {
         //lay cac môn học của sinh vien từ dangkyhoc
@@ -424,8 +484,7 @@ public class MainForm extends javax.swing.JFrame {
             PreparedStatement pstm = conn.prepareStatement("select * from dangkyhoc where masv = ? order by mamon");
             pstm.setString(1, sv.getMasv());
             ResultSet rs = pstm.executeQuery();
-            
-            
+
             while (rs.next()) {
                 String mamon = rs.getString("mamon");
                 HocPhan hp = timHP(mamon);
@@ -440,11 +499,10 @@ public class MainForm extends javax.swing.JFrame {
                         break;
                     }
                 }
-                
 
                 // Nếu chưa tồn tại, mới thêm vào danh sách
                 if (!isExists) {
-                    
+
                     sv.getHocPhans().add(hp);
                 }
             }
@@ -456,24 +514,26 @@ public class MainForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+
     // điền danh sách học phần của sinh viên vào bảng "Học phần đã đăng ký"
-    private void FillTblMHofSV (ArrayList<HocPhan> dshpcuaSV) {
+    private void FillTblMHofSV(ArrayList<HocPhan> dshpcuaSV) {
         dk_model2.setRowCount(0);
-        int n=1;
+        int n = 1;
         for (HocPhan i : dshpcuaSV) {
             dk_model2.addRow(new Object[]{n, i.getMaMon(), i.getTenMon(), i.getSoTinChi()});
             n++;
         }
     }
+
     //xóa các giá trị trong trang đăng ký học
     private void dk_clear() {
         dk_txtHoten.setText("");
         dk_txtLop.setText("");
         dk_model2.setRowCount(0);
     }
-    
+
     //lấy các sinh viên từ database
-    private void loadSinhVien(){
+    private void loadSinhVien() {
         SV.clear();
         //lay cac sinh vien tu database
         try {
@@ -486,7 +546,7 @@ public class MainForm extends javax.swing.JFrame {
 //                maPB = maPhongBan;
                 String hoten = rs.getString("hoten");
                 SV.add(new SinhVien(rs.getString("masv"), rs.getString("hoten"), rs.getString("gioitinh"),
-                                  rs.getString("ngaysinh"), rs.getString("lop")));
+                        rs.getString("ngaysinh"), rs.getString("lop")));
                 dk_jCBMasv.addItem(masv);
                 d_jCBMasv.addItem(masv);
                 tk_jCBMasv.addItem(masv);
@@ -502,15 +562,17 @@ public class MainForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+
     //điền sinh viên vào bảng
-    private void FillTblSinhVien (DefaultTableModel model) {
+    private void FillTblSinhVien(DefaultTableModel model) {
         model.setRowCount(0);
-        int n=1;
+        int n = 1;
         for (SinhVien i : SV) {
             model.addRow(new Object[]{n, i.getMasv(), i.getHoten(), i.getGender(), i.getNgaysinh(), i.getLop()});
             n++;
         }
     }
+
     //xóa các giá trị trong trang quản lý sinh viên
     private void s_clear() {
         s_txtMasv.setText("");
@@ -519,7 +581,7 @@ public class MainForm extends javax.swing.JFrame {
         s_txtNgaysinh.setText("");
         s_txtLop.setText("");
     }
-    
+
     //lấy các môn học từ database
     private void loadMonHoc() {
         //lay cac mon hoc tu database
@@ -547,33 +609,32 @@ public class MainForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    
+
     //điền môn học vào bảng quản lý môn học
-    private void FillTblMonHoc (DefaultTableModel model) {
+    private void FillTblMonHoc(DefaultTableModel model) {
         model.setRowCount(0);
-        int n=1;
+        int n = 1;
         for (HocPhan i : HP) {
             model.addRow(new Object[]{n, i.getMaMon(), i.getTenMon(), i.getSoTinChi()});
             n++;
         }
     }
+
     // căn lề nọi dung bảng
     private void setTableCellAlignment(JTable table) {
-    DefaultTableCellRenderer centerRenderer = new CenterRenderer();
+        DefaultTableCellRenderer centerRenderer = new CenterRenderer();
 
-    for (int i = 0; i < table.getColumnCount(); i++) {
-        table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
-}
 
-    
     //xóa các giá trị của trang quản lý môn học
     private void m_clear() {
         m_txtMamon.setText("");
         m_txtTenmon.setText("");
         m_txtSotinchi.setText("");
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -659,9 +720,9 @@ public class MainForm extends javax.swing.JFrame {
         s_btnXoa = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         s_tblSV = new javax.swing.JTable();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        jMenuBar2 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
+        menuExit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1358,18 +1419,21 @@ public class MainForm extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Quản lý sinh viên", jPanel2);
 
-        jMenuBar1.setBackground(new java.awt.Color(0, 0, 102));
-        jMenuBar1.setForeground(new java.awt.Color(255, 255, 255));
-
-        jMenu1.setForeground(new java.awt.Color(255, 255, 255));
-        jMenu1.setText("Hướng dẫn");
-        jMenuBar1.add(jMenu1);
-
+        jMenu2.setBackground(new java.awt.Color(0, 0, 102));
         jMenu2.setForeground(new java.awt.Color(255, 255, 255));
-        jMenu2.setText("Đăng xuất");
-        jMenuBar1.add(jMenu2);
+        jMenu2.setText("File");
 
-        setJMenuBar(jMenuBar1);
+        menuExit.setText("Đăng xuất");
+        menuExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuExitActionPerformed(evt);
+            }
+        });
+        jMenu2.add(menuExit);
+
+        jMenuBar2.add(jMenu2);
+
+        setJMenuBar(jMenuBar2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -1396,25 +1460,24 @@ public class MainForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn môn để nhập điểm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String mamon = selectMamon;
         String masv = selectSv.getMasv();
         float diem = Float.parseFloat(d_txtNhapdiem.getText().trim());
         String status_old = null;
         String status_new = (diem >= 4.0) ? "Đạt" : "Trượt";
-        
+
         for (HocPhan hp : selectSv.getHocPhans()) {
-            if (hp.getMaMon().equals(mamon)){
+            if (hp.getMaMon().equals(mamon)) {
                 status_old = selectSv.getStatus(hp.getMaMon());
                 break;
             }
         }
-        
+
         //nếu đã có điểm -> update điểm
         if (status_old != null) {
             String sql = "UPDATE diemthi SET diem = ?, status = ? WHERE masv = ? AND mamon = ?";
-            try (Connection conn = DatabaseConnection.getConnection();
-                    PreparedStatement pstm = conn.prepareStatement(sql)) {
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
 
                 pstm.setFloat(1, diem);
                 pstm.setString(2, status_new);
@@ -1433,14 +1496,13 @@ public class MainForm extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Không tìm thấy môn học", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
                 conn.close();
-                    pstm.close();
-            } catch (SQLException e){
+                pstm.close();
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         } else { //nếu chưa có thì tạo mới
             String sql = "INSERT INTO diemthi (masv, mamon, diem, status) VALUES (?, ?, ?, ?)";
-            try (Connection conn = DatabaseConnection.getConnection();
-                    PreparedStatement pstm = conn.prepareStatement(sql)) {
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
 
                 pstm.setString(1, masv);
                 pstm.setString(2, mamon);
@@ -1459,8 +1521,8 @@ public class MainForm extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Không tìm thấy môn học", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
                 conn.close();
-                    pstm.close();
-            } catch (SQLException e){
+                pstm.close();
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
@@ -1475,14 +1537,12 @@ public class MainForm extends javax.swing.JFrame {
         }
 
         String sql = "INSERT INTO monhoc (mamon, tenmon, sotinchi) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, m_txtMamon.getText().trim());
             pstmt.setString(2, m_txtTenmon.getText().trim());
             pstmt.setInt(3, Integer.parseInt(m_txtSotinchi.getText().trim()));
             //hp.add(new HocPhan(m_txtMamon.getText().trim(), m_txtTenmon.getText().trim(), Integer.parseInt(m_txtSotinchi.getText().trim())));
-            
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
@@ -1492,32 +1552,31 @@ public class MainForm extends javax.swing.JFrame {
                 m_clear();
             }
             conn.close();
-                    pstmt.close();
+            pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi khi thêm dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } 
+        }
     }//GEN-LAST:event_m_btnThemActionPerformed
 
     private void m_btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m_btnXoaActionPerformed
         // TODO add your handling code here:
         selectRowMH = m_tblMonhoc.getSelectedRow();
-        
+
         if (selectRowMH == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một môn để xóa", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         } else {
             if (JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa môn này không?") == 0) {
                 String mamon = (String) m_model.getValueAt(selectRowMH, 1);
-        
+
                 String sql = "delete from monhoc where mamon = ?";
 
-                try (Connection conn = DatabaseConnection.getConnection();
-                        PreparedStatement pstm = conn.prepareStatement(sql)) {
+                try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
                     pstm.setString(1, mamon);
 
                     int affectedRows = pstm.executeUpdate();
-                    if(affectedRows > 0){
+                    if (affectedRows > 0) {
 //                        m_model.removeRow(selectMH);
                         loadMonHoc();
                         FillTblMonHoc(m_model);
@@ -1527,7 +1586,7 @@ public class MainForm extends javax.swing.JFrame {
                     conn.close();
                     pstm.close();
 
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
@@ -1537,42 +1596,39 @@ public class MainForm extends javax.swing.JFrame {
     private void m_btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m_btnSuaActionPerformed
         // TODO add your handling code here:
         selectRowMH = m_tblMonhoc.getSelectedRow();
-        
+
         if (selectRowMH == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để cập nhật", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        
-        
+
         if (m_txtMamon.getText().trim().isEmpty() || m_txtTenmon.getText().trim().isEmpty() || m_txtSotinchi.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String sql = "UPDATE monhoc SET mamon = ?, tenmon = ?, sotinchi = ? WHERE mamon = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement pstm = conn.prepareStatement(sql)) {
-            
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
+
             pstm.setString(1, m_txtMamon.getText().trim());
             pstm.setString(2, m_txtTenmon.getText().trim());
             pstm.setInt(3, Integer.parseInt(m_txtSotinchi.getText().trim()));
             pstm.setString(4, m_txtMamon.getText().trim());
-            
+
             int affectRow = pstm.executeUpdate();
             if (affectRow > 0) {
                 //cap nhat lai jtable
                 loadMonHoc();
                 FillTblMonHoc(m_model);
-                
+
                 JOptionPane.showMessageDialog(this, "Cập nhật thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 m_clear();
             } else {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy môn học", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
             conn.close();
-                    pstm.close();
-        } catch (SQLException e){
+            pstm.close();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_m_btnSuaActionPerformed
@@ -1580,22 +1636,21 @@ public class MainForm extends javax.swing.JFrame {
     private void s_btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnXoaActionPerformed
         // TODO add your handling code here:
         selectRowSV = s_tblSV.getSelectedRow();
-        
+
         if (selectRowSV == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một sinh viên để xóa", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         } else {
             if (JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa sinh viên này không?") == 0) {
                 String masv = (String) s_model.getValueAt(selectRowSV, 1);
-        
+
                 String sql = "delete from sinhvien where masv = ?";
 
-                try (Connection conn = DatabaseConnection.getConnection();
-                        PreparedStatement pstm = conn.prepareStatement(sql)) {
+                try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
                     pstm.setString(1, masv);
 
                     int affectedRows = pstm.executeUpdate();
-                    if(affectedRows > 0){
+                    if (affectedRows > 0) {
                         loadSinhVien();
                         FillTblSinhVien(s_model);
                         JOptionPane.showMessageDialog(this, "Xóa thành công", "Cập nhật", JOptionPane.INFORMATION_MESSAGE);
@@ -1603,7 +1658,7 @@ public class MainForm extends javax.swing.JFrame {
                     }
                     conn.close();
                     pstm.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
@@ -1612,12 +1667,12 @@ public class MainForm extends javax.swing.JFrame {
 
     private void s_btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnThemActionPerformed
         // TODO add your handling code here:
-        if (s_txtMasv.getText().trim().isEmpty() || s_txtHoten.getText().trim().isEmpty() || s_txtNgaysinh.getText().trim().isEmpty() ||
-                s_txtLop.getText().trim().isEmpty() || btnGender.getSelection() == null) {
+        if (s_txtMasv.getText().trim().isEmpty() || s_txtHoten.getText().trim().isEmpty() || s_txtNgaysinh.getText().trim().isEmpty()
+                || s_txtLop.getText().trim().isEmpty() || btnGender.getSelection() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String gioitinh = "";
         if (jRadioButton1.isSelected()) {
             gioitinh = "Nam";
@@ -1626,8 +1681,7 @@ public class MainForm extends javax.swing.JFrame {
         }
 
         String sql = "INSERT INTO sinhvien (masv, hoten, gioitinh, ngaysinh, lop) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, s_txtMasv.getText().trim());
             pstmt.setString(2, s_txtHoten.getText().trim());
@@ -1635,7 +1689,6 @@ public class MainForm extends javax.swing.JFrame {
             pstmt.setString(4, s_txtNgaysinh.getText().trim());
             pstmt.setString(5, s_txtLop.getText().trim());
             //hp.add(new HocPhan(m_txtMamon.getText().trim(), m_txtTenmon.getText().trim(), Integer.parseInt(m_txtSotinchi.getText().trim())));
-            
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
@@ -1645,53 +1698,51 @@ public class MainForm extends javax.swing.JFrame {
                 s_clear();
             }
             conn.close();
-                    pstmt.close();
+            pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi khi thêm dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } 
+        }
     }//GEN-LAST:event_s_btnThemActionPerformed
 
     private void s_btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnSuaActionPerformed
         // TODO add your handling code here:
         selectRowSV = s_tblSV.getSelectedRow();
-        
+
         if (selectRowSV == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để cập nhật", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String gioitinh = "";
         if (jRadioButton1.isSelected()) {
             gioitinh = "Nam";
         } else {
             gioitinh = "Nữ";
         }
-        
-        
-        if (s_txtMasv.getText().trim().isEmpty() || s_txtHoten.getText().trim().isEmpty() || s_txtNgaysinh.getText().trim().isEmpty() ||
-                s_txtLop.getText().trim().isEmpty() || btnGender.getSelection() == null) {
+
+        if (s_txtMasv.getText().trim().isEmpty() || s_txtHoten.getText().trim().isEmpty() || s_txtNgaysinh.getText().trim().isEmpty()
+                || s_txtLop.getText().trim().isEmpty() || btnGender.getSelection() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String sql = "UPDATE sinhvien SET masv = ?, hoten = ?, gioitinh = ?, ngaysinh = ?, lop = ? WHERE masv = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement pstm = conn.prepareStatement(sql)) {
-            
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
+
             pstm.setString(1, s_txtMasv.getText().trim());
             pstm.setString(2, s_txtHoten.getText().trim());
             pstm.setString(3, gioitinh);
             pstm.setString(4, s_txtNgaysinh.getText().trim());
             pstm.setString(5, s_txtLop.getText().trim());
             pstm.setString(6, s_txtMasv.getText().trim());
-            
+
             int affectRow = pstm.executeUpdate();
             if (affectRow > 0) {
                 //cap nhat lai jtable
                 loadSinhVien();
                 FillTblSinhVien(s_model);
-                
+
                 JOptionPane.showMessageDialog(this, "Cập nhật thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 s_clear();
             } else {
@@ -1699,7 +1750,7 @@ public class MainForm extends javax.swing.JFrame {
             }
             conn.close();
             pstm.close();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_s_btnSuaActionPerformed
@@ -1707,7 +1758,7 @@ public class MainForm extends javax.swing.JFrame {
     private void s_btnTimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_s_btnTimActionPerformed
         // TODO add your handling code here:
         String keyword = s_txtTim.getText().trim();
-        searStudentInTabel(keyword);
+        searchStudentInTabel(keyword);
     }//GEN-LAST:event_s_btnTimActionPerformed
 
     private void dk_btnDKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dk_btnDKActionPerformed
@@ -1733,8 +1784,7 @@ public class MainForm extends javax.swing.JFrame {
             return;
         } else {
             String sql = "INSERT INTO dangkyhoc (masv, mamon) VALUES (?, ?)";
-            try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, sv.getMasv());
                 pstmt.setString(2, mamon);
 
@@ -1750,7 +1800,7 @@ public class MainForm extends javax.swing.JFrame {
             } catch (SQLException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi khi đăng ký!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            } 
+            }
         }
     }//GEN-LAST:event_dk_btnDKActionPerformed
 
@@ -1761,16 +1811,15 @@ public class MainForm extends javax.swing.JFrame {
             return;
         } else {
             if (JOptionPane.showConfirmDialog(this, "Bạn có muốn hủy đăng ký môn này không?") == 0) {
-        
+
                 String sql = "DELETE FROM dangkyhoc WHERE masv = ? AND mamon = ?";
 
-                try (Connection conn = DatabaseConnection.getConnection();
-                        PreparedStatement pstm = conn.prepareStatement(sql)) {
+                try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
                     pstm.setString(1, selectSv.getMasv());
                     pstm.setString(2, selectMamon);
 
                     int affectedRows = pstm.executeUpdate();
-                    if(affectedRows > 0){
+                    if (affectedRows > 0) {
                         loadMHofSV(selectSv);
                         FillTblMHofSV(selectSv.getHocPhans());
                         JOptionPane.showMessageDialog(this, "Xóa thành công", "Cập nhật", JOptionPane.INFORMATION_MESSAGE);
@@ -1779,12 +1828,12 @@ public class MainForm extends javax.swing.JFrame {
                     conn.close();
                     pstm.close();
 
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
         }
-        
+
     }//GEN-LAST:event_dk_btnHuyActionPerformed
 
     private void d_btnXoadiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d_btnXoadiemActionPerformed
@@ -1794,14 +1843,13 @@ public class MainForm extends javax.swing.JFrame {
             return;
         } else {
             if (JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa điểm của môn này không?") == 0) {
-        
+
                 String sql = "DELETE FROM diemthi WHERE masv = ? AND mamon = ?";
 
-                try (Connection conn = DatabaseConnection.getConnection();
-                        PreparedStatement pstm = conn.prepareStatement(sql)) {
+                try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstm = conn.prepareStatement(sql)) {
                     pstm.setString(1, selectSv.getMasv());
                     pstm.setString(2, selectMamon);
-                    
+
                     for (HocPhan hp : selectSv.getHocPhans()) {
                         if (hp.getMaMon().equals(selectMamon)) {
                             selectSv.setDiem(hp.getMaMon(), 0);
@@ -1811,7 +1859,7 @@ public class MainForm extends javax.swing.JFrame {
                     }
 
                     int affectedRows = pstm.executeUpdate();
-                    if(affectedRows > 0){
+                    if (affectedRows > 0) {
                         loadDiemOfSV(selectSv);
                         FillTblDiem(selectSv);
                         JOptionPane.showMessageDialog(this, "Xóa thành công", "Cập nhật", JOptionPane.INFORMATION_MESSAGE);
@@ -1820,7 +1868,7 @@ public class MainForm extends javax.swing.JFrame {
                     conn.close();
                     pstm.close();
 
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
@@ -1833,21 +1881,30 @@ public class MainForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sinh viên", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         exportToExcel(selectSv.getBangDiems(), selectMasv + "_bangdiem.xlsx");
     }//GEN-LAST:event_d_btnExportActionPerformed
-    
-    private void searStudentInTabel (String keyword) {
+
+    private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
+        // TODO add your handling code here:
+        if(JOptionPane.showConfirmDialog(this, "Bạn có muốn đăng xuất không") == 0){
+            System.exit(0);
+        }
+        
+    }//GEN-LAST:event_menuExitActionPerformed
+
+    private void searchStudentInTabel(String keyword) {
         DefaultTableModel model = (DefaultTableModel) s_tblSV.getModel();
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
         s_tblSV.setRowSorter(sorter);
-        
+
         if (keyword.trim().isEmpty()) {
             sorter.setRowFilter(null);
         } else {
             sorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword, 1, 2));
         }
     }
+
     /**
      * @param args the command line arguments
      */
@@ -1878,7 +1935,7 @@ public class MainForm extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainForm().setVisible(true);
+                new MainForm(username, role).setVisible(true);
             }
         });
     }
@@ -1927,9 +1984,8 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1947,6 +2003,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTextField m_txtMamon;
     private javax.swing.JTextField m_txtSotinchi;
     private javax.swing.JTextField m_txtTenmon;
+    private javax.swing.JMenuItem menuExit;
     private javax.swing.JButton s_btnSua;
     private javax.swing.JButton s_btnThem;
     private javax.swing.JButton s_btnTim;

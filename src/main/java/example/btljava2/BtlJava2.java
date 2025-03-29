@@ -11,7 +11,9 @@ package example.btljava2;
 public class BtlJava2 {
 
     public static void main(String[] args) {
-        MainForm frame = new MainForm();
-        frame.setVisible(true);
+//        MainForm frame = new MainForm();
+//        frame.setVisible(true);
+        Login login = new Login();
+        login.setVisible(true);
     }
 }

@@ -9,7 +9,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import java.awt.event.MouseAdapter;
 import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.*;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.*;
 
@@ -236,6 +243,56 @@ public class MainForm extends javax.swing.JFrame {
 //        FillTblMonHoc(dk_model1);   
     }
     
+    //export điểm
+    public void exportToExcel(ArrayList<BangDiem> bangDiemList, String filePath) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Bảng Điểm");
+
+        // Tạo tiêu đề cột
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"Mã SV", "Tên SV", "Mã Môn", "Tên Môn", "Điểm"};
+
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            CellStyle style = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font font = workbook.createFont();
+            font.setBold(true);
+            style.setFont(font);
+            cell.setCellStyle(style);
+        }
+
+        // Ghi dữ liệu vào các dòng tiếp theo
+        int rowNum = 1;
+        for (BangDiem bd : bangDiemList) {
+            Row row = sheet.createRow(rowNum++);
+            SinhVien sv = timSV(bd.getMasv());
+            HocPhan hp = timHP(bd.getMaMon());
+            row.createCell(0).setCellValue(sv.getMasv());
+            row.createCell(1).setCellValue(sv.getHoten());
+            row.createCell(2).setCellValue(hp.getMaMon());
+            row.createCell(3).setCellValue(hp.getTenMon());
+            row.createCell(4).setCellValue(bd.getDiem());
+        }
+
+        // Auto-size các cột
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Xuất file
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+            workbook.close();
+//            System.out.println("Xuất file Excel thành công: " + filePath);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công: " + filePath, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
     //vẽ biểu đồ
     private void updateChart() {
         if (selectSv == null) return;
@@ -259,8 +316,8 @@ public class MainForm extends javax.swing.JFrame {
 
         // Tùy chỉnh màu sắc
         PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setSectionPaint("Môn đạt", new Color(50, 130, 246));  // Xanh biển
-        plot.setSectionPaint("Môn trượt", new Color(255, 51, 51)); // Đỏ
+        plot.setSectionPaint("Môn đạt", new java.awt.Color(50, 130, 246));  // Xanh biển
+        plot.setSectionPaint("Môn trượt", new java.awt.Color(255, 51, 51)); // Đỏ
 
         // 3. Hiển thị biểu đồ trên tk_panelBieuDo
         ChartPanel chartPanel = new ChartPanel(chart);
@@ -319,7 +376,7 @@ public class MainForm extends javax.swing.JFrame {
         sv.getBangDiems().clear();
         try {
             Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement pstm = conn.prepareStatement("select * from diemthi where masv = ?");
+            PreparedStatement pstm = conn.prepareStatement("select * from diemthi where masv = ? order by mamon");
             pstm.setString(1, sv.getMasv());
             ResultSet rs = pstm.executeQuery();
             
@@ -364,7 +421,7 @@ public class MainForm extends javax.swing.JFrame {
         sv.getHocPhans().clear();
         try {
             Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement pstm = conn.prepareStatement("select * from dangkyhoc where masv = ?");
+            PreparedStatement pstm = conn.prepareStatement("select * from dangkyhoc where masv = ? order by mamon");
             pstm.setString(1, sv.getMasv());
             ResultSet rs = pstm.executeQuery();
             
@@ -422,7 +479,7 @@ public class MainForm extends javax.swing.JFrame {
         try {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from sinhvien order by id");
+            ResultSet rs = stmt.executeQuery("select * from sinhvien order by masv");
 //            sinhvienMap.clear(); // Xóa dữ liệu cũ nếu có
             while (rs.next()) {
                 String masv = rs.getString("masv");
@@ -470,7 +527,7 @@ public class MainForm extends javax.swing.JFrame {
         try {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from monhoc order by id");
+            ResultSet rs = stmt.executeQuery("select * from monhoc order by mamon");
 //            monhocnMap.clear(); // Xóa dữ liệu cũ nếu có
             while (rs.next()) {
                 String mamon = rs.getString("mamon");
@@ -555,6 +612,7 @@ public class MainForm extends javax.swing.JFrame {
         d_txtNhapdiem = new javax.swing.JTextField();
         d_btnNhapdiem = new javax.swing.JButton();
         d_btnXoadiem = new javax.swing.JButton();
+        d_btnExport = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel20 = new javax.swing.JLabel();
         tk_jCBMasv = new javax.swing.JComboBox<>();
@@ -792,14 +850,23 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        d_btnExport.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        d_btnExport.setForeground(new java.awt.Color(0, 0, 153));
+        d_btnExport.setText("Xuất Excel");
+        d_btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d_btnExportActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(32, 32, 32)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 593, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -814,9 +881,9 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(d_jCBMasv, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel3))
@@ -824,11 +891,15 @@ public class MainForm extends javax.swing.JFrame {
                                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(d_txtTenmon, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(d_txtHoten, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                                .addGap(72, 72, 72)
                                 .addComponent(d_btnNhapdiem)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(d_btnXoadiem)))))
-                .addContainerGap(41, Short.MAX_VALUE))
+                                .addGap(18, 18, 18)
+                                .addComponent(d_btnXoadiem)
+                                .addGap(18, 18, 18)
+                                .addComponent(d_btnExport)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -850,7 +921,8 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(jLabel5)
                     .addComponent(d_txtNhapdiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(d_btnNhapdiem)
-                    .addComponent(d_btnXoadiem))
+                    .addComponent(d_btnXoadiem)
+                    .addComponent(d_btnExport))
                 .addGap(43, 43, 43)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(66, Short.MAX_VALUE))
@@ -1754,6 +1826,16 @@ public class MainForm extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_d_btnXoadiemActionPerformed
+
+    private void d_btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d_btnExportActionPerformed
+        // TODO add your handling code here:
+        if ((selectMasv == null) || selectMasv.equals("---")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sinh viên", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        exportToExcel(selectSv.getBangDiems(), selectMasv + "_bangdiem.xlsx");
+    }//GEN-LAST:event_d_btnExportActionPerformed
     
     private void searStudentInTabel (String keyword) {
         DefaultTableModel model = (DefaultTableModel) s_tblSV.getModel();
@@ -1805,6 +1887,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JScrollPane JScrollPane;
     private javax.swing.JScrollPane JScrollPane1;
     private javax.swing.JScrollPane JScrollPane2;
+    private javax.swing.JButton d_btnExport;
     private javax.swing.JButton d_btnNhapdiem;
     private javax.swing.JButton d_btnXoadiem;
     private javax.swing.JComboBox<String> d_jCBMasv;
